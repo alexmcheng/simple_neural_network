@@ -6,6 +6,9 @@
 
 import numpy as np
 
+nu = 4.0
+
+
 # sigmoid squishing function
 def sigmoid(x):
 	return 1/(1+np.exp(-x))
@@ -54,21 +57,22 @@ w0 = 2*np.random.random((4,5))-1
 w1 = 2*np.random.random((5,1))-1
  
  # train neural network 250 times
-for i in range(250):
+for i in range(50):
 	# Calculate output neuron by propagating forword input
 	l0 = X
 	l1 = sigmoid(l0 @ w0)
-	l2 = sigmoid(l1 @ w1)
+	output = sigmoid(l1 @ w1)
 	# Calculate gradient for last synapse
-	l2_error = 2*(Y-l2)
-	l2_delta = l2_error*sig_deriv(l2)
+	# Error function is (Y-l2)**2, partial derivative below:
+	d_error = -2*(Y-output)
+	out_delta = d_error*sig_deriv(output)
 	# Calculate gradient for first synapse
-	l1_error = l2_delta @ w1.T
+	l1_error = out_delta @ w1.T
 	l1_delta = l1_error*sig_deriv(l1)
 	# Adjust weight matrices with gradients
-	w1 += l1.T @ l2_delta
-	w0 += l0.T @ l1_delta
+	w1 -= nu * l1.T @ out_delta
+	w0 -= nu * l0.T @ l1_delta
 
 # print out total error and final output neurons after training
-print("Error: " + str(np.mean((Y-l2)**2)))
-print(l2)
+print("Error: " + str(np.mean((Y-output)**2)))
+print(output)
